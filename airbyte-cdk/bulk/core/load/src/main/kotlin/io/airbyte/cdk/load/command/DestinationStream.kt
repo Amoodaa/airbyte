@@ -132,14 +132,15 @@ data class DestinationStream(
 @Singleton
 class DestinationStreamFactory(
     private val jsonSchemaToAirbyteType: JsonSchemaToAirbyteType,
+    private val namespaceMapper: NamespaceMapper
 ) {
     fun make(stream: ConfiguredAirbyteStream): DestinationStream {
+        val descriptor = namespaceMapper.map(
+            namespace = stream.stream.namespace,
+            name = stream.stream.name
+        )
         return DestinationStream(
-            descriptor =
-                DestinationStream.Descriptor(
-                    namespace = stream.stream.namespace,
-                    name = stream.stream.name
-                ),
+            descriptor = descriptor,
             importType =
                 when (stream.destinationSyncMode) {
                     null -> throw IllegalArgumentException("Destination sync mode was null")
